@@ -1,5 +1,3 @@
-/** @jsx dom */
-
 let songIndex = 0;
 let isLocked = false;
 let songsLength = null;
@@ -52,11 +50,11 @@ function App({ songs }) {
 
   setBodyBg(songs[0].bg);
 
-  return (
-    <div class="music-player flex-column">
-      <Slider slides={songs} handleChangeMusic={handleChangeMusic} />
-      <Playlist list={songs} handleChangeMusic={handleChangeMusic} />
-    </div>
+  return dom(
+    "div",
+    { class: "music-player flex-column" },
+    Slider({ slides: songs, handleChangeMusic }),
+    Playlist({ list: songs, handleChangeMusic })
   );
 }
 
@@ -84,63 +82,67 @@ function Slider({ slides, handleChangeMusic }) {
     selectedSong.paused ? selectedSong.play() : selectedSong.pause();
   }
 
-  return (
-    <div class="slider center" onClick={handleResizeSlider}>
-      <div class="slider__content center">
-        <button class="music-player__playlist-button center button">
-          <i class="icon-playlist" />
-        </button>
-        <button
-          onClick={handlePlayMusic}
-          class="music-player__broadcast-guarantor center button"
-        >
-          <i class="icon-play" />
-          <i class="icon-pause" />
-        </button>
-        <div class="slider__imgs flex-row">
-          {slides.map(({ songName, files: { cover } }) => (
-            <img src={cover} class="img" alt={songName} />
-          ))}
-        </div>
-      </div>
-      <div class="slider__controls center">
-        <button
-          class="slider__switch-button flex-row button"
-          onClick={() => handleChangeMusic({ isPrev: true })}
-        >
-          <i class="icon-back" />
-        </button>
-        <div class="music-player__info text_trsf-cap">
-          <div>
-            <div class="music-player__singer-name">
-              <div>{slides[0].artist}</div>
-            </div>
-          </div>
-          <div>
-            <div class="music-player__subtitle">
-              <div>{slides[0].songName}</div>
-            </div>
-          </div>
-        </div>
-        <button
-          class="slider__switch-button flex-row button"
-          onClick={() => handleChangeMusic({ isPrev: false })}
-        >
-          <i class="icon-next" />
-        </button>
-        <div
-          class="progress center"
-          onPointerdown={(e) => {
-            handleScrub(e);
-            progressBarIsUpdating = true;
-          }}
-        >
-          <div class="progress__wrapper">
-            <div class="progress__bar center" />
-          </div>
-        </div>
-      </div>
-    </div>
+  return dom(
+    "div",
+    { class: "slider center", onClick: handleResizeSlider },
+    dom(
+      "div",
+      { class: "slider__content center" },
+      dom("button", { class: "music-player__playlist-button center button" },
+        dom("i", { class: "icon-playlist" })
+      ),
+      dom("button", {
+        onClick: handlePlayMusic,
+        class: "music-player__broadcast-guarantor center button"
+      },
+        dom("i", { class: "icon-play" }),
+        dom("i", { class: "icon-pause" })
+      ),
+      dom("div", { class: "slider__imgs flex-row" },
+        slides.map(({ songName, files: { cover } }) =>
+          dom("img", { src: cover, class: "img", alt: songName })
+        )
+      )
+    ),
+    dom(
+      "div",
+      { class: "slider__controls center" },
+      dom("button", {
+        class: "slider__switch-button flex-row button",
+        onClick: () => handleChangeMusic({ isPrev: true })
+      },
+        dom("i", { class: "icon-back" })
+      ),
+      dom("div", { class: "music-player__info text_trsf-cap" },
+        dom("div", null,
+          dom("div", { class: "music-player__singer-name" },
+            dom("div", null, slides[0].artist)
+          )
+        ),
+        dom("div", null,
+          dom("div", { class: "music-player__subtitle" },
+            dom("div", null, slides[0].songName)
+          )
+        )
+      ),
+      dom("button", {
+        class: "slider__switch-button flex-row button",
+        onClick: () => handleChangeMusic({ isPrev: false })
+      },
+        dom("i", { class: "icon-next" })
+      ),
+      dom("div", {
+        class: "progress center",
+        onPointerdown: (e) => {
+          handleScrub(e);
+          progressBarIsUpdating = true;
+        }
+      },
+        dom("div", { class: "progress__wrapper" },
+          dom("div", { class: "progress__bar center" })
+        )
+      )
+    )
   );
 }
 
@@ -181,54 +183,53 @@ function Playlist({ list, handleChangeMusic }) {
     }
   }
 
-  return (
-    <ul class="music-player__playlist list">
-      {list.map(({ songName, artist, files: { cover, song } }, index) => {
-        return (
-          <li
-            class="music-player__song"
-            onClick={() =>
-              handleChangeMusic({ isPrev: false, playListIndex: index })
-            }
-          >
-            <div class="flex-row _align_center">
-              <img src={cover} class="img music-player__song-img" />
-              <div class="music-player__playlist-info  text_trsf-cap">
-                <b class="text_overflow">{songName}</b>
-                <div class="flex-row _justify_space-btwn">
-                  <span class="music-player__subtitle">{artist}</span>
-                  <span class="music-player__song-duration"></span>
-                </div>
-              </div>
-            </div>
-            <audio
-              src={song}
-              onLoadeddata={loadedAudio}
-              onTimeupdate={updateTheProgressBar}
-            />
-          </li>
-        );
-      })}
-    </ul>
+  return dom(
+    "ul",
+    { class: "music-player__playlist list" },
+    list.map(({ songName, artist, files: { cover, song } }, index) =>
+      dom(
+        "li",
+        {
+          class: "music-player__song",
+          onClick: () =>
+            handleChangeMusic({ isPrev: false, playListIndex: index })
+        },
+        dom("div", { class: "flex-row _align_center" },
+          dom("img", { src: cover, class: "img music-player__song-img" }),
+          dom("div", { class: "music-player__playlist-info text_trsf-cap" },
+            dom("b", { class: "text_overflow" }, songName),
+            dom("div", { class: "flex-row _justify_space-btwn" },
+              dom("span", { class: "music-player__subtitle" }, artist),
+              dom("span", { class: "music-player__song-duration" })
+            )
+          )
+        ),
+        dom("audio", {
+          src: song,
+          onLoadeddata: loadedAudio,
+          onTimeupdate: updateTheProgressBar
+        })
+      )
+    )
   );
 }
 
 function Loading() {
-  return (
-    <div class="loading flex-row">
-      <span class="loading__progress">0</span>
-      <span>%</span>
-    </div>
+  return dom(
+    "div",
+    { class: "loading flex-row" },
+    dom("span", { class: "loading__progress" }, "0"),
+    dom("span", null, "%")
   );
 }
 
 function dom(tag, props, ...children) {
-  if (typeof tag === "function") return tag(props, ...children);
+  if (typeof tag === "function") return tag(props || {}, ...children);
 
   function addChild(parent, child) {
     if (Array.isArray(child)) {
       child.forEach((nestedChild) => addChild(parent, nestedChild));
-    } else {
+    } else if (child != null) {
       parent.appendChild(
         child.nodeType ? child : document.createTextNode(child.toString())
       );
@@ -238,24 +239,21 @@ function dom(tag, props, ...children) {
   const element = document.createElement(tag);
 
   Object.entries(props || {}).forEach(([name, value]) => {
-    if (name.startsWith("on") && name.toLowerCase() in window) {
-      element[name.toLowerCase()] = value;
-    } else if (name === "style") {
-      Object.entries(value).forEach(([styleProp, styleValue]) => {
-        element.style[styleProp] = styleValue;
-      });
+    if (name.startsWith("on") && typeof value === "function") {
+      element.addEventListener(name.substring(2).toLowerCase(), value);
+    } else if (name === "style" && typeof value === "object") {
+      Object.assign(element.style, value);
     } else {
       element.setAttribute(name, value.toString());
     }
   });
 
-  children.forEach((child) => {
-    addChild(element, child);
-  });
+  children.forEach((child) => addChild(element, child));
 
   return element;
 }
 
+// --- fetch songs + mount app ---
 fetch(
   "https://raw.githubusercontent.com/magdalene-ho/magscrib-music-json/refs/heads/main/music-info.json"
 )
@@ -298,13 +296,13 @@ fetch(
       );
     }
 
-    root.appendChild(<Loading />);
+    root.appendChild(Loading());
     loadingProgress_elmnt = querySelector(".loading__progress");
 
     downloadTheFiles("cover", songs).then((respone) => {
       downloadTheFiles("song", respone).then((data) => {
         root.removeChild(querySelector(".loading"));
-        root.appendChild(<App songs={data} />);
+        root.appendChild(App({ songs: data }));
 
         songsLength = data.length - 1;
         progress_elmnt = querySelector(".progress");
@@ -325,6 +323,7 @@ fetch(
     });
   });
 
+// --- utility functions ---
 function controlSubtitleAnimation(parent, child) {
   if (child.classList.contains("animate")) return;
 
